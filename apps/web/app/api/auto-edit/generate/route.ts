@@ -12,6 +12,15 @@ const DREAMINA_BIN = path.join(os.homedir(), "bin", "dreamina.exe");
 
 const ALLOWED_DREAMINA_MODELS = ["seedance2.0", "seedance2.0fast"] as const;
 
+async function dreaminaAvailable(): Promise<boolean> {
+  try {
+    await execFileP(DREAMINA_BIN, ["--help"], { timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function dreaminaGenerate(prompt: string, imageUrls: string[], modelVersion: string): Promise<string> {
   // Block VIP models
   if (!ALLOWED_DREAMINA_MODELS.includes(modelVersion as typeof ALLOWED_DREAMINA_MODELS[number])) {
@@ -66,13 +75,16 @@ export async function POST(req: Request) {
   try {
     // dreamina CLI via multimodal2video (Seedance 2.0 family)
     if (model === "seedance2.0" || model === "seedance2.0fast") {
-      const videoUrl = await dreaminaGenerate(prompt, imageUrls, model);
-
-      return NextResponse.json({
-        success: true,
-        videoUrl,
-        model: `即梦 CLI (${model})`,
-      });
+      if (await dreaminaAvailable()) {
+        const videoUrl = await dreaminaGenerate(prompt, imageUrls, model);
+        return NextResponse.json({
+          success: true,
+          videoUrl,
+          model: `即梦 CLI (${model})`,
+        });
+      }
+      // Fall through to Lingke API when dreamina CLI not available (e.g. Vercel serverless)
+      console.log("dreamina CLI not available, falling back to Lingke API");
     }
 
     const result = await lingkeVideoGeneration(
