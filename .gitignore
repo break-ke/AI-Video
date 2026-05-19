@@ -1,0 +1,57 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+
+# turbo
+.turbo/
+
+# production
+build/
+dist/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# playwright
+test-results/
+playwright-report/
+
+# prisma
+packages/database/prisma/dev.db
+packages/database/prisma/dev.db-journal
+
+# vercel
+.vercel
+
+# artifacts
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# uploaded media
+apps/web/public/uploads/
+apps/web/apps/web/public/uploads/
+
+# analysis text
+分析视频提示词.txt
+apps/web/public/分析视频提示词.txt

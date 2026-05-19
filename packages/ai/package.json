@@ -1,0 +1,9 @@
+{
+  "name": "@platform/ai",
+  "version": "0.1.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit" },
+  "dependencies": { "@anthropic-ai/sdk": "^0.55.0", "openai": "^5.0.0", "@platform/shared": "workspace:*", "zod": "^3.24.0" },
+  "devDependencies": { "@platform/typescript-config": "workspace:*", "typescript": "^5.8.0" }
+}

@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  clerkId   String    @unique
+  email     String    @unique
+  name      String?
+  createdAt DateTime  @default(now())
+
+  projects  Project[]
+  templates Template[]
+  feedback  Feedback[]
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  userId      String
+  productName String
+  description String?
+  status      String    @default("draft")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id])
+  tasks         PipelineTask[]
+  sellingPoints SellingPoint[]
+  templates     TemplateUsage[]
+
+  @@index([userId])
+}
+
+model PipelineTask {
+  id           String    @id @default(cuid())
+  projectId    String
+  type         String
+  status       String    @default("pending")
+  progress     Int       @default(0)
+  currentStage String?
+  input        String    @default("{}")
+  output       String?
+  error        String?
+  createdAt    DateTime  @default(now())
+  completedAt  DateTime?
+
+  project     Project          @relation(fields: [projectId], references: [id])
+  stages      PipelineStage[]
+  analysis    CompetitorAnalysis[]
+  storyboards Storyboard[]
+  scripts     Script[]
+  videoAssets VideoAsset[]
+  genPlan     GenerationPlan?
+  feedback    Feedback[]
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model PipelineStage {
+  id           String    @id @default(cuid())
+  taskId       String
+  stageType    String
+  status       String    @default("pending")
+  progress     Int       @default(0)
+  input        String?
+  output       String?
+  attemptCount Int       @default(0)
+  error        String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+
+  task PipelineTask @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+}
+
+model CompetitorAnalysis {
+  id              String   @id @default(cuid())
+  taskId          String
+  competitorName  String
+  productUrl      String?
+  features        String   @default("[]")
+  pricing         String?
+  strengths       String   @default("[]")
+  weaknesses      String   @default("[]")
+  marketingChannels String  @default("[]")
+  screenshots     String   @default("[]")
+  rawReport       String?
+  createdAt       DateTime @default(now())
+
+  task PipelineTask @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+}
+
+model SellingPoint {
+  id        String   @id @default(cuid())
+  projectId String
+  taskId    String
+  content   String
+  priority  Int      @default(0)
+  source    String   @default("auto_extracted")
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+}
+
+model Storyboard {
+  id        String   @id @default(cuid())
+  taskId    String
+  version   Int      @default(1)
+  status    String   @default("draft")
+  createdAt DateTime @default(now())
+
+  task   PipelineTask    @relation(fields: [taskId], references: [id])
+  scenes StoryboardScene[]
+
+  @@index([taskId])
+}
+
+model StoryboardScene {
+  id                String  @id @default(cuid())
+  storyboardId      String
+  sequence          Int
+  description       String
+  imagePrompt       String
+  durationSeconds   Int     @default(5)
+  transition        String  @default("fade")
+  generatedImageUrl String?
+  referenceImageUrl String?
+  status            String  @default("pending")
+
+  storyboard Storyboard @relation(fields: [storyboardId], references: [id])
+
+  @@index([storyboardId])
+}
+
+model Script {
+  id             String   @id @default(cuid())
+  taskId         String
+  version        Int      @default(1)
+  content        String
+  language       String   @default("zh")
+  wordCount      Int      @default(0)
+  parentScriptId String?
+  status         String   @default("draft")
+  createdAt      DateTime @default(now())
+
+  task       PipelineTask     @relation(fields: [taskId], references: [id])
+  iterations ScriptIteration[]
+  children   Script[]         @relation("ScriptIterations")
+  parent     Script?          @relation("ScriptIterations", fields: [parentScriptId], references: [id])
+
+  @@index([taskId])
+}
+
+model ScriptIteration {
+  id              String   @id @default(cuid())
+  scriptId        String
+  feedbackText    String
+  improvedScriptId String?
+  iterationNumber Int
+  createdAt       DateTime @default(now())
+
+  script Script @relation(fields: [scriptId], references: [id])
+
+  @@index([scriptId])
+}
+
+model GenerationPlan {
+  id            String   @id @default(cuid())
+  taskId        String   @unique
+  selectedModel String
+  modelParams   String   @default("{}")
+  estimatedCost Float
+  rationale     String?
+  createdAt     DateTime @default(now())
+
+  task PipelineTask @relation(fields: [taskId], references: [id])
+}
+
+model VideoAsset {
+  id         String   @id @default(cuid())
+  taskId     String
+  type       String
+  url        String
+  duration   Float?
+  resolution String?
+  format     String   @default("mp4")
+  stageType  String?
+  metadata   String   @default("{}")
+  createdAt  DateTime @default(now())
+
+  task PipelineTask @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+}
+
+model Template {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  description  String?
+  config       String   @default("{}")
+  isPublic     Boolean  @default(false)
+  thumbnailUrl String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user  User            @relation(fields: [userId], references: [id])
+  usage TemplateUsage[]
+
+  @@index([userId])
+}
+
+model TemplateUsage {
+  id             String   @id @default(cuid())
+  templateId     String
+  projectId      String
+  instantiatedAt DateTime @default(now())
+
+  template Template @relation(fields: [templateId], references: [id])
+  project  Project  @relation(fields: [projectId], references: [id])
+
+  @@index([templateId])
+  @@index([projectId])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  stage     String
+  rating    Int?
+  comment   String?
+  category  String?
+  metadata  String   @default("{}")
+  createdAt DateTime @default(now())
+
+  task PipelineTask @relation(fields: [taskId], references: [id])
+  user User         @relation(fields: [userId], references: [id])
+
+  @@index([taskId])
+}
+
+model AnalysisRecord {
+  id          String   @id @default(cuid())
+  userId      String   @default("admin")
+  url         String
+  productName String
+  status      String   @default("pending") // pending|downloading|analyzing|completed|failed
+  progress    Int      @default(0)
+  prompt      String   @default("")
+  result      String?  // JSON string of segments
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+model ExportLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  format    String
+  url       String
+  fileSize  Float?
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+}

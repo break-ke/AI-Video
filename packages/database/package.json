@@ -1,0 +1,9 @@
+{
+  "name": "@platform/database",
+  "version": "0.1.0",
+  "main": "./src/client.ts",
+  "types": "./src/client.ts",
+  "scripts": { "db:push": "prisma db push", "db:migrate": "prisma migrate dev", "db:studio": "prisma studio", "db:generate": "prisma generate", "typecheck": "tsc --noEmit" },
+  "dependencies": { "@prisma/client": "^6.2.0", "@platform/shared": "workspace:*" },
+  "devDependencies": { "@platform/typescript-config": "workspace:*", "prisma": "^6.2.0", "typescript": "^5.8.0" }
+}
