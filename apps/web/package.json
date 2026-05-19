@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3100 --turbo",
-    "build": "npx -y prisma generate && npx -y prisma db push --accept-data-loss && next build",
+    "build": "npx -y prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
@@ -16,6 +16,7 @@
     "@platform/media": "workspace:*",
     "@platform/pipeline": "workspace:*",
     "@platform/shared": "workspace:*",
+    "@prisma/client": "6.19.3",
     "@tailwindcss/postcss": "^4.3.0",
     "@tanstack/react-query": "^5.70.0",
     "@trpc/client": "^11.0.0",
