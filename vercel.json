@@ -1,0 +1,6 @@
+{
+  "buildCommand": "prisma generate --schema=packages/database/prisma/schema.prisma && pnpm build",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "outputDirectory": "apps/web/.next"
+}

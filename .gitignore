@@ -55,3 +55,5 @@ apps/web/apps/web/public/uploads/
 # analysis text
 分析视频提示词.txt
 apps/web/public/分析视频提示词.txt
+
+.vercel
