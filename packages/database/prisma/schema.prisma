@@ -9,14 +9,47 @@ datasource db {
 
 model User {
   id        String    @id @default(cuid())
-  clerkId   String    @unique
   email     String    @unique
   name      String?
+  image     String?
   createdAt DateTime  @default(now())
 
   projects  Project[]
   templates Template[]
   feedback  Feedback[]
+  analysisRecords AnalysisRecord[]
+  accounts  Account[]
+  sessions  Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Project {
@@ -156,8 +189,8 @@ model Script {
 
   task       PipelineTask     @relation(fields: [taskId], references: [id])
   iterations ScriptIteration[]
-  children   Script[]         @relation("ScriptIterations")
-  parent     Script?          @relation("ScriptIterations", fields: [parentScriptId], references: [id])
+  children   Script[]         @relation("ScriptVersions")
+  parent     Script?          @relation("ScriptVersions", fields: [parentScriptId], references: [id])
 
   @@index([taskId])
 }
@@ -253,7 +286,7 @@ model Feedback {
 
 model AnalysisRecord {
   id          String   @id @default(cuid())
-  userId      String   @default("admin")
+  userId      String
   url         String
   productName String
   status      String   @default("pending") // pending|downloading|analyzing|completed|failed
@@ -262,6 +295,8 @@ model AnalysisRecord {
   result      String?  // JSON string of segments
   error       String?
   createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([status])

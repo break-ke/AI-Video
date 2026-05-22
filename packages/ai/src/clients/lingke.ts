@@ -59,14 +59,20 @@ export async function lingkeImageGeneration(prompt: string, options?: { size?: s
   const taskId: number = submitData.data?.task_id;
   if (!taskId) throw new Error(`灵客 Image: 未返回 task_id`);
 
-  // Step 2: Poll until complete (max 120s)
+  // Step 2: Poll until complete (max 120s) with exponential backoff
   const deadline = Date.now() + 120_000;
+  let attempt = 0;
   while (Date.now() < deadline) {
-    await new Promise((r) => setTimeout(r, 3000));
     const statusRes = await fetch(`${BASE_URL}/skills/task-status?task_id=${taskId}`, {
       headers: { Authorization: `Bearer ${API_KEY}` },
     });
-    if (!statusRes.ok) continue;
+    if (!statusRes.ok) {
+      const delay = Math.min(1000 * Math.pow(2, attempt), 30000);
+      await new Promise((r) => setTimeout(r, delay));
+      attempt++;
+      continue;
+    }
+    attempt = 0;
 
     const statusData = await statusRes.json();
     if (statusData.is_final) {
@@ -131,14 +137,20 @@ export async function lingkeVideoGeneration(prompt: string, imageUrls: string[],
   const taskId: number = submitData.data?.task_id;
   if (!taskId) throw new Error(`灵客 Video: 未返回 task_id`);
 
-  // Step 2: Poll until complete (max 10 minutes for video)
+  // Step 2: Poll until complete (max 10 minutes for video) with exponential backoff
   const deadline = Date.now() + 600_000;
+  let attempt = 0;
   while (Date.now() < deadline) {
-    await new Promise((r) => setTimeout(r, 5000));
     const statusRes = await fetch(`${BASE_URL}/skills/task-status?task_id=${taskId}`, {
       headers: { Authorization: `Bearer ${API_KEY}` },
     });
-    if (!statusRes.ok) continue;
+    if (!statusRes.ok) {
+      const delay = Math.min(1000 * Math.pow(2, attempt), 30000);
+      await new Promise((r) => setTimeout(r, delay));
+      attempt++;
+      continue;
+    }
+    attempt = 0;
 
     const statusData = await statusRes.json();
     if (statusData.is_final) {

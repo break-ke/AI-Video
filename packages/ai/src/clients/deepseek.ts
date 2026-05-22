@@ -1,5 +1,5 @@
-const BASE_URL = process.env.ANTHROPIC_BASE_URL || "https://api.deepseek.com/anthropic";
-const API_KEY = process.env.ANTHROPIC_AUTH_TOKEN || "";
+const BASE_URL = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com/anthropic";
+const API_KEY = process.env.DEEPSEEK_API_KEY || "";
 
 interface Message {
   role: "user" | "assistant";
@@ -11,7 +11,7 @@ export async function deepseekChat(messages: Message[], options?: { maxTokens?: 
     method: "POST",
     headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
     body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL || "deepseek-v4-pro",
+      model: process.env.DEEPSEEK_MODEL || "deepseek-v4-pro",
       max_tokens: options?.maxTokens || 4096,
       temperature: options?.temperature ?? 0.3,
       messages,

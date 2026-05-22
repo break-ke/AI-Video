@@ -1,19 +1,14 @@
-# dependencies
+# Dependencies
 node_modules/
 .pnpm-store/
 
-# next.js
+# Build output
 .next/
-out/
-
-# turbo
-.turbo/
-
-# production
-build/
 dist/
+build/
+*.tsbuildinfo
 
-# env
+# Environment
 .env
 .env.local
 .env.*.local
@@ -23,37 +18,26 @@ dist/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Database
+*.db
+*.db-journal
+prisma/dev.db
 
-# playwright
-test-results/
+# Testing
+coverage/
 playwright-report/
+test-results/
 
-# prisma
-packages/database/prisma/dev.db
-packages/database/prisma/dev.db-journal
+# Temp files
+uploads/
+*.tmp
 
-# vercel
-.vercel
-
-# artifacts
-tsconfig.tsbuildinfo
-*.tsbuildinfo
-
-# uploaded media
-apps/web/public/uploads/
-apps/web/apps/web/public/uploads/
-
-# analysis text
-分析视频提示词.txt
-apps/web/public/分析视频提示词.txt
-
-.vercel
+# Sketches / prototypes (not production code)
+sketches/
+videoforge-architecture.html
